@@ -5,13 +5,24 @@ const { Tag, Product, ProductTag } = require('../../models');
 
 router.get('/', (req, res) => {
   // find all tags
-  Tag.findAll()
+  Tag.findAll({
+    attributes: [
+      'id',
+      'tag_name'
+    ],
+    // be sure to include its associated Product data
+    include: [
+      {
+        model: Product,
+        attributes: ['product_name']
+      }
+    ]
+  })
   .then(dbTagData => res.json(dbTagData))
   .catch(err => {
     console.log(err);
     res.status(500).json(err);
   });
-  // be sure to include its associated Product data
 });
 
 router.get('/:id', (req, res) => {
@@ -19,7 +30,18 @@ router.get('/:id', (req, res) => {
   Tag.findOne({
     where: {
       id: req.params.id
-    }
+    },
+    attributes: [
+      'id',
+      'tag_name'
+    ],
+    // be sure to include its associated Product data
+    include: [
+      {
+        model: Product,
+        attributes: ['product_name']
+      }
+    ]
   })
     .then(dbTagData => {
       if (!dbTagData) {
@@ -32,15 +54,14 @@ router.get('/:id', (req, res) => {
       console.log(err);
       res.status(500).json(err);
     });
-  // be sure to include its associated Product data
 });
 
 router.post('/', (req, res) => {
   // create a new tag
   Tag.create({
-    tag_name: require.body.tag_name
+    tag_name: req.body.tag_name
   })
-  .then(dbTagData => res.jason(dbTagData))
+  .then(dbTagData => res.json(dbTagData))
   .catch(err => {
     console.log(err);
     res.status(500).json(err);
